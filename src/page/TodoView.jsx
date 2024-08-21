@@ -25,10 +25,13 @@ const TodoView = () => {
             setTodoList(data);
         } catch (error) {
             console.error("Error fetching todos:", error);
+           
         } finally {
             setLoading(false); // Set loading to false
+            
         }
     };
+    
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -198,7 +201,7 @@ const TodoView = () => {
                             />
                         </div>
                         <div className="mb-6">
-                            <input type="submit" className="inline-block py-2 px-6 rounded-lg bg-[#7747FF] hover:bg-white hover:text-[#7747FF] focus:text-[#7747FF] focus:bg-gray-200 text-gray-50 font-bold leading-loose transition duration-200" />
+                            <input type="submit" className="w-full inline-block py-2 px-6 rounded-lg bg-[#7747FF] hover:bg-white hover:text-[#7747FF] focus:text-[#7747FF] focus:bg-gray-200 text-gray-50 font-bold leading-loose transition duration-200" />
                             {editTodo && (
                                 <button type="button" onClick={cancelEdit} className="ml-4 inline-block py-2 px-6 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold leading-loose transition duration-200">
                                     Batal

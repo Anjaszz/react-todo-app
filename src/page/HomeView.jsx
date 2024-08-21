@@ -48,22 +48,10 @@ const HomeView = () => {
         <h1 className="text-2xl font-bold mb-4 text-center">Waktu Sholat</h1>
         <div className="bg-white shadow-md rounded-lg p-4">
           <h2 className="text-xl font-semibold mb-4 text-center">{prayerTimes.tanggal}</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex flex-col items-center">
-              <span className="font-semibold">Imsak:</span>
-              <span>{prayerTimes.imsak}</span>
-            </div>
-            <div className="flex flex-col items-center">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 bg-green-600">
+            <div className="flex flex-col items-center bg-green-400">
               <span className="font-semibold">Subuh:</span>
               <span>{prayerTimes.subuh}</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="font-semibold">Terbit:</span>
-              <span>{prayerTimes.terbit}</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="font-semibold">Dhuha:</span>
-              <span>{prayerTimes.dhuha}</span>
             </div>
             <div className="flex flex-col items-center">
               <span className="font-semibold">Dzuhur:</span>
