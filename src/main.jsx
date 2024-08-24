@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
 import HomeView from './page/HomeView.jsx'
-import AboutView from './page/AboutView.jsx'
+import CalcView from './page/CalcView.jsx'
 import ContactView from './page/ContactView.jsx'
 import TodoView from './page/TodoView.jsx'
 import {
@@ -18,7 +18,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App/>}>
       <Route path='/' element={<HomeView/>}/>
-      <Route path='/about' element={<AboutView/>}/>
+      <Route path='/calc' element={<CalcView/>}/>
       <Route path='/contact' element={<ContactView/>}/>
       <Route path='/todo' element={<TodoView/>}/>
     </Route>

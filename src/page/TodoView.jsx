@@ -8,35 +8,33 @@ const TodoView = () => {
     const [titleError, setTitleError] = useState('');
     const [bodyError, setBodyError] = useState('');
     const [todoList, setTodoList] = useState([]);
-    const [editTodo, setEditTodo] = useState(null); // State untuk edit todo
-    const [loading, setLoading] = useState(false); // State for loading
-
-    const apiUrl = import.meta.env.VITE_API_TODO; // Access API URL from environment variables
+    const [editTodo, setEditTodo] = useState(null); 
+    const [loading, setLoading] = useState(false); 
 
     useEffect(() => {
         fetchTodos();
     }, []);
 
-    const fetchTodos = async () => {
-        setLoading(true); // Set loading to true
+    const fetchTodos = () => {
+        setLoading(true);
         try {
-            const response = await fetch(`${apiUrl}/todos`);
-            const data = await response.json();
+            const data = JSON.parse(localStorage.getItem('todos')) || [];
             setTodoList(data);
         } catch (error) {
             console.error("Error fetching todos:", error);
-           
         } finally {
-            setLoading(false); // Set loading to false
-            
+            setLoading(false);
         }
     };
-    
 
-    const handleSubmit = async (event) => {
+    const saveTodos = (todos) => {
+        localStorage.setItem('todos', JSON.stringify(todos));
+    };
+
+    const handleSubmit = (event) => {
         event.preventDefault();
         
-        // Reset errors
+       
         setTitleError('');
         setBodyError('');
         
@@ -56,43 +54,26 @@ const TodoView = () => {
             return;
         }
         
-        setLoading(true); // Set loading to true
+        setLoading(true);
         try {
             if (editTodo) {
-                console.log('Submitting todo:', { title, body, isComplete: editTodo.isComplete });
-                const response = await fetch(`${apiUrl}/todos/${editTodo.id}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ title, body, isComplete: editTodo.isComplete }),
-                });
-        
-                if (response.ok) {
-                    const updatedTodo = await response.json();
-                    console.log('Updated todo:', updatedTodo);
-                    setTodoList(todoList.map(todo => todo.id === updatedTodo.id ? updatedTodo : todo));
-                    setEditTodo(null); // Reset edit mode
-                } else {
-                    console.error('Failed to update todo');
-                }
+                const updatedTodo = { ...editTodo, title, body };
+                const updatedList = todoList.map(todo => todo.id === updatedTodo.id ? updatedTodo : todo);
+                setTodoList(updatedList);
+                saveTodos(updatedList);
+                setEditTodo(null);
             } else {
-                const response = await fetch(`${apiUrl}/todos`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ title, body }),
-                });
-                const newTodo = await response.json();
-                setTodoList([...todoList, newTodo]);
+                const newTodo = { id: Date.now(), title, body, isComplete: false };
+                const updatedList = [...todoList, newTodo];
+                setTodoList(updatedList);
+                saveTodos(updatedList);
             }
             setTitle("");
             setBody("");
         } catch (error) {
             console.error("Error adding/updating todo:", error);
         } finally {
-            setLoading(false); // Set loading to false
+            setLoading(false);
         }
     };
 
@@ -104,51 +85,31 @@ const TodoView = () => {
         setBody(event.target.value);
     };
 
-    const changeStatus = async (id) => {
-        const todoToUpdate = todoList.find(todo => todo.id === id);
-        if (!todoToUpdate) {
-            console.error('Todo not found');
-            return;
-        }
-    
-        setLoading(true); // Set loading to true
+    const changeStatus = (id) => {
+        setLoading(true);
         try {
-            const response = await fetch(`${apiUrl}/todos/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    title: todoToUpdate.title,
-                    body: todoToUpdate.body,
-                    isComplete: true
-                }),
-            });
-    
-            if (response.ok) {
-                const updatedTodo = await response.json();
-                setTodoList(todoList.map(todo => todo.id === updatedTodo.id ? updatedTodo : todo));
-            } else {
-                console.error('Failed to update todo');
-            }
+            const updatedList = todoList.map(todo => 
+                todo.id === id ? { ...todo, isComplete: !todo.isComplete } : todo
+            );
+            setTodoList(updatedList);
+            saveTodos(updatedList);
         } catch (error) {
             console.error("Error updating todo status:", error);
         } finally {
-            setLoading(false); // Set loading to false
+            setLoading(false);
         }
     };
 
-    const deleteTodo = async (id) => {
-        setLoading(true); // Set loading to true
+    const deleteTodo = (id) => {
+        setLoading(true);
         try {
-            await fetch(`${apiUrl}/todos/${id}`, {
-                method: "DELETE",
-            });
-            setTodoList(todoList.filter(todo => todo.id !== id));
+            const updatedList = todoList.filter(todo => todo.id !== id);
+            setTodoList(updatedList);
+            saveTodos(updatedList);
         } catch (error) {
             console.error("Error deleting todo:", error);
         } finally {
-            setLoading(false); // Set loading to false
+            setLoading(false);
         }
     };
 
@@ -164,7 +125,7 @@ const TodoView = () => {
         setBody("");
     };
 
-    if (loading) return <LoadingSpinner />; // Show loading spinner while loading
+    if (loading) return <LoadingSpinner />;
 
     return (
         <>
@@ -201,9 +162,9 @@ const TodoView = () => {
                             />
                         </div>
                         <div className="mb-6">
-                            <input type="submit" className="w-full inline-block py-2 px-6 rounded-lg bg-[#7747FF] hover:bg-white hover:text-[#7747FF] focus:text-[#7747FF] focus:bg-gray-200 text-gray-50 font-bold leading-loose transition duration-200" />
+                            <input type="submit" className="w-1/2 inline-block py-2 px-6 rounded-lg bg-[#7747FF] hover:bg-white hover:text-[#7747FF] focus:text-[#7747FF] focus:bg-gray-200 text-gray-50 font-bold leading-loose transition duration-200" />
                             {editTodo && (
-                                <button type="button" onClick={cancelEdit} className="ml-4 inline-block py-2 px-6 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold leading-loose transition duration-200">
+                                <button type="button" onClick={cancelEdit} className=" w-2/5 ml-4 inline-block py-2 px-6 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold leading-loose transition duration-200">
                                     Batal
                                 </button>
                             )}

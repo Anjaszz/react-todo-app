@@ -11,8 +11,8 @@ function App() {
     },
     {
       id: 2,
-      name: "About",
-      url: "/about"
+      name: "Kalkulator",
+      url: "/calc"
     },
     {
       id: 3,
@@ -29,7 +29,7 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navigation Listitem={Listitem} />
-      <main className="flex-grow mx-auto my-5  w-full max-w-4xl p-10 bg-slate-50">
+      <main className="flex-grow mx-auto my-2  w-full max-w-4xl p-5">
         <Outlet />
       </main>
       <Footer />

@@ -4,7 +4,7 @@ import React from 'react'
 
 const TitleHead = ({title}) => {
   return (
-    <h1 className='p-0 text-4xl font-bold font-signikaNegative text-customRed text-center'>{title}</h1>
+    <h1 className=' text-4xl font-bold font-signikaNegative text-customRed text-center mb-5'>{title}</h1>
   );
 };
 
