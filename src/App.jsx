@@ -16,13 +16,13 @@ function App() {
     },
     {
       id: 3,
-      name: "Contact",
-      url: "/contact"
+      name: "SmartList",
+      url: "https://smart-list-two.vercel.app"
     },
     {
       id: 4,
-      name: "Todo",
-      url: "/todo"
+      name: "Remove Bg",
+      url: "https://backdrop-remover-me.vercel.app"
     }
   ];
 

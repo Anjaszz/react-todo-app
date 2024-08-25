@@ -25,7 +25,7 @@ const Navigation = ({ Listitem }) => {
           } md:translate-x-0`}
         >
           {Listitem.map((item) => (
-            <li className="hover:text-orange-400 py-2 md:py-0" key={item.id}>
+            <li className="hover:text-blue-50 py-2 md:py-0" key={item.id}>
               <Link to={item.url} onClick={() => setIsOpen(false)}>
                 {item.name}
               </Link>
