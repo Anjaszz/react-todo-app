@@ -7,3 +7,25 @@
 body {
     @apply font-signikaNegative;
   }
+
+
+.swal2-popup {
+  width: 80% !important;
+  height: 80% !important;
+  max-width: 400px;
+}
+
+
+.swal2-title {
+  font-size: 1.3rem; 
+}
+
+.swal2-content {
+  font-size: 1rem; 
+}
+
+
+.swal2-confirm, .swal2-cancel {
+  padding: 0.75rem 1.5rem; 
+  font-size: 0.9rem; 
+}

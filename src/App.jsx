@@ -21,7 +21,7 @@ function App() {
     },
     {
       id: 4,
-      name: "Remove Bg",
+      name: "Remove Background",
       url: "https://backdrop-remover-me.vercel.app"
     }
   ];

@@ -1,6 +1,9 @@
-import TitleHead from "../components/TitleHead";
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import TitleHead from "../components/TitleHead";
 import LoadingSpinner from "../components/LoadingSpinner";
+import TodoForm from "../components/TodoForm";
+import TodoList from "../components/TodoList";
 
 const HomeView = () => {
     const [title, setTitle] = useState("");
@@ -8,8 +11,8 @@ const HomeView = () => {
     const [titleError, setTitleError] = useState('');
     const [bodyError, setBodyError] = useState('');
     const [todoList, setTodoList] = useState([]);
-    const [editTodo, setEditTodo] = useState(null); 
-    const [loading, setLoading] = useState(false); 
+    const [editTodo, setEditTodo] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchTodos();
@@ -31,10 +34,9 @@ const HomeView = () => {
         localStorage.setItem('todos', JSON.stringify(todos));
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         
-       
         setTitleError('');
         setBodyError('');
         
@@ -62,52 +64,108 @@ const HomeView = () => {
                 setTodoList(updatedList);
                 saveTodos(updatedList);
                 setEditTodo(null);
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Todo berhasil diperbarui.',
+                    confirmButtonText: 'OK'
+                });
             } else {
-                const newTodo = { id: Date.now(), title, body, isComplete: false };
+                const newTodo = {
+                    id: Date.now(),
+                    title,
+                    body,
+                    isComplete: false,
+                    createdAt: new Date().toLocaleString(), 
+                    completedAt: null
+                };
                 const updatedList = [...todoList, newTodo];
                 setTodoList(updatedList);
                 saveTodos(updatedList);
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Todo berhasil ditambahkan.',
+                    confirmButtonText: 'OK'
+                });
             }
             setTitle("");
             setBody("");
         } catch (error) {
             console.error("Error adding/updating todo:", error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan!',
+                text: 'Gagal menambahkan/memperbarui todo.',
+                confirmButtonText: 'OK'
+            });
         } finally {
             setLoading(false);
         }
     };
 
-    const inputTitle = (event) => {
-        setTitle(event.target.value);
-    };
-
-    const inputBody = (event) => {
-        setBody(event.target.value);
-    };
-
-    const changeStatus = (id) => {
+    const changeStatus = async (id) => {
         setLoading(true);
         try {
             const updatedList = todoList.map(todo => 
-                todo.id === id ? { ...todo, isComplete: !todo.isComplete } : todo
+                todo.id === id ? { 
+                    ...todo, 
+                    isComplete: !todo.isComplete,
+                    completedAt: !todo.isComplete ? new Date().toLocaleString() : null
+                } : todo
             );
             setTodoList(updatedList);
             saveTodos(updatedList);
+            await Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Todo berhasil di selesaikan.',
+                confirmButtonText: 'OK'
+            });
         } catch (error) {
             console.error("Error updating todo status:", error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan!',
+                text: 'Gagal mengubah status todo.',
+                confirmButtonText: 'OK'
+            });
         } finally {
             setLoading(false);
         }
     };
 
-    const deleteTodo = (id) => {
+    const deleteTodo = async (id) => {
         setLoading(true);
         try {
-            const updatedList = todoList.filter(todo => todo.id !== id);
-            setTodoList(updatedList);
-            saveTodos(updatedList);
+            await Swal.fire({
+                title: 'Konfirmasi Hapus',
+                text: 'Apakah Anda yakin ingin menghapus todo ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batal'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const updatedList = todoList.filter(todo => todo.id !== id);
+                    setTodoList(updatedList);
+                    saveTodos(updatedList);
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Todo berhasil dihapus.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
         } catch (error) {
             console.error("Error deleting todo:", error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan!',
+                text: 'Gagal menghapus todo.',
+                confirmButtonText: 'OK'
+            });
         } finally {
             setLoading(false);
         }
@@ -131,80 +189,23 @@ const HomeView = () => {
         <>
             <TitleHead title="My Todo App" />
             <div className="grid gap-6 mb-6 mt-8 w-full">
-                {/* Tambah/Update Todo */}
-                <div className="border p-10 bg-blue-100 rounded-lg border-blue-300">
-                    <h1 className="text-3xl text-center font-semibold my-3">{editTodo ? 'Edit Todo' : 'Tambah Todo'}</h1>
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-6">
-                            <label className="block mb-2 font-medium">Judul</label>
-                            {titleError && (
-                                <p className="text-red-600 text-sm mb-2">{titleError}</p>
-                            )}
-                            <input
-                                placeholder="Judul todo"
-                                onChange={inputTitle}
-                                value={title}
-                                type="text"
-                                className={`bg-gray-50 border rounded-lg w-full p-2 ${titleError ? 'border-red-600' : 'border-gray-300'}`}
-                            />
-                        </div>
-                        <div className="mb-6">
-                            <label className="block mb-2 font-medium">Isi Todo</label>
-                            {bodyError && (
-                                <p className="text-red-600 text-sm mb-2">{bodyError}</p>
-                            )}
-                            <input
-                                onChange={inputBody}
-                                value={body}
-                                placeholder="Isi todo"
-                                type="text"
-                                className={`bg-gray-50 border rounded-lg w-full p-2 ${bodyError ? 'border-red-600' : 'border-gray-300'}`}
-                            />
-                        </div>
-                        <div className="mb-6">
-                            <input type="submit" className="w-1/2 inline-block py-2 px-6 rounded-lg bg-[#7747FF] hover:bg-white hover:text-[#7747FF] focus:text-[#7747FF] focus:bg-gray-200 text-gray-50 font-bold leading-loose transition duration-200" />
-                            {editTodo && (
-                                <button type="button" onClick={cancelEdit} className=" w-2/5 ml-4 inline-block py-2 px-6 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold leading-loose transition duration-200">
-                                    Batal
-                                </button>
-                            )}
-                        </div>
-                    </form>
-                </div>
-
-                {/* List Todo */}
-                <div className="border px-3 py-3 bg-yellow-300 rounded-lg w-full">
-                    <h1 className="text-3xl text-center my-3 font-semibold">List Todo</h1>
-                    <div className="space-y-4">
-                        {todoList.length > 0 ? (
-                            todoList.map((todo) => (
-                                <div key={todo.id} className="border rounded-lg p-4 bg-yellow-200 shadow-md flex flex-col w-full">
-                                    <div className="flex-grow">
-                                        <h2 className="text-xl font-semibold break-words">{todo.title}</h2>
-                                        <p className="break-words">{todo.body}</p>
-                                    </div>
-                                    <div className="mt-4 flex justify-between items-center">
-                                        {todo.isComplete ? (
-                                            <span className="text-green-600 font-bold">Selesai</span>
-                                        ) : (
-                                            <button onClick={() => changeStatus(todo.id)} className="font-bold border rounded-lg bg-green-500 hover:bg-green-600 p-2 text-white">
-                                                Selesaikan
-                                            </button>
-                                        )}
-                                        <div className="flex space-x-2">
-                                            <button onClick={() => startEdit(todo)} className="font-bold border rounded-lg bg-blue-500 hover:bg-blue-600 p-2 text-white">Edit</button>
-                                            <button onClick={() => deleteTodo(todo.id)} className="font-bold border rounded-lg bg-red-500 hover:bg-red-600 p-2 text-white">Hapus</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="text-center text-gray-600 my-40">
-                                <h3>List Todo masih kosong</h3>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <TodoForm 
+                    title={title}
+                    body={body}
+                    titleError={titleError}
+                    bodyError={bodyError}
+                    editTodo={editTodo}
+                    onSubmit={handleSubmit}
+                    onTitleChange={setTitle}
+                    onBodyChange={setBody}
+                    onCancelEdit={cancelEdit}
+                />
+                <TodoList 
+                    todos={todoList}
+                    onEdit={startEdit}
+                    onDelete={deleteTodo}
+                    onChangeStatus={changeStatus}
+                />
             </div>
         </>
     );
